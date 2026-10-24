@@ -169,7 +169,7 @@ function render(){
     if(['카페','맛집','놀거리','여행'].includes(S.tab)&&r.kind!==S.tab)return false;
     if(S.tab==='again'&&!r.again)return false;
     if(S.area&&r.area!==S.area)return false;
-    if(q&&!(`${r.name} ${r.menu||''} ${r.memo||''} ${r.area||''}`.toLowerCase().includes(q)))return false;
+    if(q&&!(`${r.name} ${r.menu||''} ${r.memo||''} ${r.area||''} ${r.address||''}`.toLowerCase().includes(q)))return false;
     return true;
   });
   if(S.tab==='again')list=[...list].sort((a,b)=>((b.jia_star||0)+(b.jongsu_star||0))-((a.jia_star||0)+(a.jongsu_star||0)));
@@ -199,6 +199,10 @@ function openView(id){
     ${(r.photos||[]).length?`<div class="photos">${r.photos.map(p=>S.urls[p]?`<img src="${S.urls[p]}" onclick="zoom('${S.urls[p]}')" alt="">`:'').join('')}</div>`:''}
     <div class="kv">
       ${r.area?`<span>동네</span><span>${esc(r.area)}</span>`:''}
+      ${r.address?`<span>주소</span><span>${esc(r.address)}<br>
+        <button class="btn small" style="margin-top:6px" onclick="copyAddr('${r.id}')">📋 복사</button>
+        <a class="btn small" style="text-decoration:none;display:inline-block;margin-top:6px;color:inherit" target="_blank" href="https://map.naver.com/p/search/${encodeURIComponent(r.address)}">🟢 네이버지도</a>
+        <a class="btn small" style="text-decoration:none;display:inline-block;margin-top:6px;color:inherit" target="_blank" href="https://map.kakao.com/link/search/${encodeURIComponent(r.address)}">🟡 카카오맵</a></span>`:''}
       ${r.visited?`<span>다녀온 날</span><span>${r.visited}</span>`:''}
       ${r.menu?`<span>먹은 메뉴</span><span>${esc(r.menu)}</span>`:''}
       ${r.jia_star?`<span>지아 별점</span><span style="color:var(--star)">${stars(r.jia_star)}</span>`:''}
@@ -209,6 +213,11 @@ function openView(id){
     </div>
     <button class="btn" style="width:100%;margin-top:16px" onclick="closeModal()">닫기</button>`);
 }
+async function copyAddr(id){
+  const a=S.rows.find(x=>x.id===id).address;
+  try{ await navigator.clipboard.writeText(a); toast('주소를 복사했어요'); }
+  catch(e){ const t=document.createElement('textarea'); t.value=a; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); toast('주소를 복사했어요'); }
+}
 function zoom(u){$('viewerImg').src=u;$('viewer').classList.add('on')}
 
 // ── 기록하기 / 고치기 ──
@@ -217,12 +226,13 @@ function openEdit(id){
   S.draft={...r,photos:[...(r.photos||[])],newFiles:[],removed:[]};
   const ar=areas();
   openModal(`<h2 style="font-size:22px">${id?'고치기':'💕 기록하기'}</h2>
-    <label class="field">가게·장소 이름<input id="eName" value="${esc(r.name)}" placeholder="예: 딥플로우 커피"></label>
+    <label class="field">가게·장소 이름<input id="eName" value="${esc(r.name)}" placeholder="예: 클럽디오아시스"></label>
     <div class="field">종류<div class="seg" id="eKind">${KINDS.map(([k,i])=>`<button type="button" class="${r.kind===k?'on':''}" onclick="pickKind(this,'${k}')">${i} ${k}</button>`).join('')}</div></div>
     <div class="g2">
-      <label class="field">동네<input id="eArea" list="areaList" value="${esc(r.area||'')}" placeholder="예: 부산대"></label>
+      <label class="field">동네<input id="eArea" list="areaList" value="${esc(r.area||'')}" placeholder="예: 해운대"></label>
       <label class="field">다녀온 날<input id="eDate" type="date" value="${r.visited||''}"></label>
     </div>
+    <label class="field">주소<input id="eAddr" value="${esc(r.address||'')}" placeholder="예: 부산 해운대구 해운대해변로 ○○ (지도 앱에서 복사해 붙여넣기)"></label>
     <datalist id="areaList">${ar.map(a=>`<option>${esc(a)}</option>`).join('')}</datalist>
     <div class="field">사진 <span style="font-size:12px">고르기만 하면 알아서 줄여서 올려요</span>
       <div class="thumbs" id="eThumbs"></div>
@@ -306,7 +316,7 @@ async function savePlace(){
       if(fail(error,'사진 올리기'))throw error;
       uploaded.push(path);
     }
-    const row={name,kind:d.kind,area:$('eArea').value.trim()||null,visited:$('eDate').value||null,menu:$('eMenu').value.trim()||null,
+    const row={name,kind:d.kind,area:$('eArea').value.trim()||null,address:$('eAddr').value.trim()||null,visited:$('eDate').value||null,menu:$('eMenu').value.trim()||null,
       jia_star:d.jia_star||null,jongsu_star:d.jongsu_star||null,again:$('eAgain').checked,
       cost:Number($('eCost').value.replace(/[^\d]/g,''))||null,memo:$('eMemo').value.trim()||null,photos:[...d.photos,...uploaded],updated_by:S.me};
     const q=d.id?sb.from('date_places').update(row).eq('id',d.id):sb.from('date_places').insert(row);
