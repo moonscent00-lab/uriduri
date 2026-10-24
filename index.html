@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>우리둘이</title>
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#fbf4f1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="우리둘이">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{--bg:#fbf4f1;--card:#fffdfc;--ink:#2d2426;--sub:#8a7a7d;--line:#efdfdb;--accent:#d0607a;--accent-soft:#fbe4ea;--star:#e2a53a;--ok:#4f8a64}
+@media (prefers-color-scheme: dark){:root{--bg:#1d1719;--card:#272022;--ink:#f3eaec;--sub:#ad9da1;--line:#3b3134;--accent:#ee8aa1;--accent-soft:#3d2830;--star:#f0bd5c;--ok:#86c19a}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{overflow-x:hidden;max-width:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 'Noto Sans KR',system-ui,sans-serif;-webkit-text-size-adjust:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2{font-family:'Gowun Dodum',sans-serif;font-weight:400;margin:0}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px calc(110px + env(safe-area-inset-bottom))}
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header .wrap{padding-top:12px;padding-bottom:10px}
+.top{display:flex;align-items:center;gap:8px}
+.top h1{font-size:23px;flex:1}
+.ghost{background:none;border:none;color:var(--sub);cursor:pointer;padding:6px}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:9px 14px;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.small{padding:5px 10px;font-size:13px}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-top:10px;scrollbar-width:none}
+.tab{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:5px 13px;font-size:14px;white-space:nowrap;cursor:pointer}
+.tab.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.filters{display:flex;gap:6px;margin-top:8px}
+.filters select,.filters input{flex:1;min-width:0;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:7px 9px;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+@media (min-width:600px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.cardp{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column}
+.cardp .ph{aspect-ratio:1/1;background:var(--accent-soft);display:grid;place-items:center;font-size:34px;overflow:hidden}
+.cardp .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.cardp .bd{padding:9px 10px 11px}
+.cardp .nm{font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cardp .mt{font-size:12px;color:var(--sub)}
+.pill{display:inline-block;font-size:11px;border-radius:6px;padding:1px 6px;background:var(--accent-soft);color:var(--accent);margin-right:3px}
+.again{color:var(--accent)}
+.area-h{font-family:'Gowun Dodum',sans-serif;font-size:19px;margin:20px 2px 0}
+.empty{text-align:center;color:var(--sub);padding:50px 10px}
+.fab{position:fixed;right:max(18px,calc(50% - 362px));bottom:calc(22px + env(safe-area-inset-bottom));z-index:6;border:none;background:var(--accent);color:#fff;border-radius:30px;padding:14px 20px;font-size:16px;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.18);cursor:pointer}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:20}
+#modal.on{display:flex}
+.sheet{background:var(--card);width:100%;max-width:620px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom))}
+.field{display:flex;flex-direction:column;gap:4px;margin-top:11px;font-size:13px;color:var(--sub)}
+.field input,.field select,.field textarea{width:100%;min-width:0;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 10px;font-size:15px;color:var(--ink)}
+.field input[type=checkbox]{width:20px;height:20px;flex:none;padding:0}
+.g2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 10px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{border:1px solid var(--line);background:var(--bg);border-radius:20px;padding:6px 12px;cursor:pointer;font-size:14px}
+.seg button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.stars button{background:none;border:none;font-size:24px;padding:0 1px;cursor:pointer;color:var(--line)}
+.stars button.on{color:var(--star)}
+.thumbs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:8px}
+.thumbs div{position:relative;aspect-ratio:1/1;border-radius:10px;overflow:hidden;background:var(--accent-soft)}
+.thumbs img{width:100%;height:100%;object-fit:cover}
+.thumbs button{position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:11px;border:none;background:rgba(0,0,0,.55);color:#fff;font-size:12px;cursor:pointer}
+.addph{border:2px dashed var(--line);border-radius:12px;padding:14px;text-align:center;color:var(--sub);cursor:pointer;margin-top:6px}
+.photos{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;margin:10px -16px 0;padding:0 16px}
+.photos img{height:62vw;max-height:380px;border-radius:14px;scroll-snap-align:center;flex:none;max-width:88%;object-fit:cover}
+.kv{display:grid;grid-template-columns:76px 1fr;gap:6px 10px;margin-top:14px;font-size:14px}
+.kv span:nth-child(odd){color:var(--sub)}
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+#login .box{width:100%;max-width:360px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px}
+#toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30;max-width:90vw}
+#toast.on{opacity:1}
+#viewer{position:fixed;inset:0;background:#000;z-index:40;display:none;align-items:center;justify-content:center}
+#viewer.on{display:flex}
+#viewer img{max-width:100%;max-height:100%}
+</style>
+</head>
+<body>
+
+<div id="login" hidden><div class="box">
+  <h1 style="font-size:30px">💕 우리둘이</h1>
+  <p style="color:var(--sub);margin:4px 0 0">우리가 다녀온 곳들</p>
+  <label class="field">이메일<input id="email" type="email" autocomplete="username"></label>
+  <label class="field">비밀번호<input id="pw" type="password" autocomplete="current-password"></label>
+  <button class="btn primary" style="width:100%;margin-top:14px" onclick="doLogin()">들어가기</button>
+  <p id="loginErr" style="color:var(--accent);font-size:13px"></p>
+</div></div>
+
+<div id="app" hidden>
+  <header><div class="wrap">
+    <div class="top"><h1>💕 우리둘이</h1><span id="count" style="color:var(--sub);font-size:13px"></span><button class="ghost" onclick="logout()" title="로그아웃">⎋</button></div>
+    <div class="tabs" id="tabs"></div>
+    <div class="filters">
+      <select id="fArea" onchange="S.area=this.value;render()"></select>
+      <input id="fQ" placeholder="🔍 가게·메뉴 찾기" oninput="S.q=this.value;clearTimeout(window._t);window._t=setTimeout(render,250)">
+    </div>
+  </div></header>
+  <main class="wrap" id="view"></main>
+  <button class="fab" onclick="openEdit()">＋ 기록하기</button>
+</div>
+
+<div id="modal" onclick="if(event.target===this)closeModal()"><div class="sheet" id="sheet"></div></div>
+<div id="viewer" onclick="this.classList.remove('on')"><img id="viewerImg" alt=""></div>
+<div id="toast"></div>
+<input type="file" id="pick" accept="image/*" multiple hidden onchange="addPhotos(this.files);this.value=''">
+
+<script>
+const SB_URL='https://ervuakkqjmegzbqngwzc.supabase.co';
+const SB_KEY='sb_publishable_E53HmWOq2-gQrlOBlAmTKg_dcAFO2PV';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+const BUCKET='date-photos';
+const KINDS=[['카페','☕'],['맛집','🍽'],['놀거리','🎡'],['여행','🧳']];
+const TABS=[['all','📸 전체'],['카페','☕ 카페'],['맛집','🍽 맛집'],['놀거리','🎡 놀거리'],['여행','🧳 여행'],['again','💛 또 갈래'],['area','📍 동네별']];
+const S={rows:[],tab:'all',area:'',q:'',urls:{},draft:null};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const won=n=>n?Number(n).toLocaleString('ko-KR')+'원':'';
+const kindIcon=k=>(KINDS.find(x=>x[0]===k)||['','💕'])[1];
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2600)}
+function fail(e,w){if(e){console.error(e);toast((w||'저장')+' 실패: '+e.message);return true}return false}
+const today=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+
+// ── 로그인 ──
+async function doLogin(){
+  $('loginErr').textContent='';
+  const {error}=await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('pw').value});
+  if(error){$('loginErr').textContent='로그인 실패: 이메일이나 비밀번호를 확인해 주세요.';return}
+  boot();
+}
+$('pw').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+async function logout(){await sb.auth.signOut();location.reload()}
+async function boot(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){$('login').hidden=false;$('app').hidden=true;return}
+  S.me=session.user.email;
+  $('login').hidden=true;$('app').hidden=false;
+  await load();
+}
+
+// ── 불러오기 ──
+async function load(){
+  const {data,error}=await sb.from('date_places').select('*').order('visited',{ascending:false,nullsFirst:false}).order('created_at',{ascending:false});
+  if(fail(error,'불러오기'))return;
+  S.rows=data;
+  await signUrls(data.flatMap(r=>r.photos||[]));
+  render();
+}
+async function signUrls(paths){
+  const need=[...new Set(paths)].filter(p=>p&&!S.urls[p]);
+  for(let i=0;i<need.length;i+=100){
+    const {data,error}=await sb.storage.from(BUCKET).createSignedUrls(need.slice(i,i+100),60*60*24*7);
+    if(error){console.error(error);continue}
+    data.forEach(d=>{if(d.signedUrl)S.urls[d.path]=d.signedUrl});
+  }
+}
+
+// ── 목록 ──
+function areas(){return [...new Set(S.rows.map(r=>r.area).filter(Boolean))].sort()}
+function render(){
+  $('tabs').innerHTML=TABS.map(([k,l])=>`<button class="tab ${S.tab===k?'on':''}" onclick="S.tab='${k}';render()">${l}</button>`).join('');
+  const ar=areas();
+  $('fArea').innerHTML=`<option value="">📍 모든 동네</option>`+ar.map(a=>`<option ${a===S.area?'selected':''}>${esc(a)}</option>`).join('');
+  const q=S.q.trim().toLowerCase();
+  let list=S.rows.filter(r=>{
+    if(['카페','맛집','놀거리','여행'].includes(S.tab)&&r.kind!==S.tab)return false;
+    if(S.tab==='again'&&!r.again)return false;
+    if(S.area&&r.area!==S.area)return false;
+    if(q&&!(`${r.name} ${r.menu||''} ${r.memo||''} ${r.area||''}`.toLowerCase().includes(q)))return false;
+    return true;
+  });
+  if(S.tab==='again')list=[...list].sort((a,b)=>((b.jia_star||0)+(b.jongsu_star||0))-((a.jia_star||0)+(a.jongsu_star||0)));
+  $('count').textContent=`${list.length}곳`;
+  if(!list.length){$('view').innerHTML=`<div class="empty">${S.rows.length?'조건에 맞는 곳이 없어요':'아직 기록이 없어요.<br>오른쪽 아래 <b>＋ 기록하기</b>를 눌러 첫 데이트를 남겨보세요 💕'}</div>`;return}
+  if(S.tab==='area'){
+    const g={};list.forEach(r=>(g[r.area||'동네 미정']||=[]).push(r));
+    $('view').innerHTML=Object.keys(g).sort().map(a=>`<h2 class="area-h">📍 ${esc(a)} <span style="color:var(--sub);font-size:14px">${g[a].length}</span></h2><div class="grid">${g[a].map(card).join('')}</div>`).join('');
+  }else $('view').innerHTML=`<div class="grid">${list.map(card).join('')}</div>`;
+}
+function stars(n){return n?'★'.repeat(n):''}
+function card(r){
+  const cover=(r.photos||[])[0];
+  return `<div class="cardp" onclick="openView('${r.id}')">
+    <div class="ph">${cover&&S.urls[cover]?`<img loading="lazy" src="${S.urls[cover]}" alt="">`:kindIcon(r.kind)}</div>
+    <div class="bd"><div class="nm">${r.again?'<span class="again">💛</span> ':''}${esc(r.name)}</div>
+    <div class="mt">${r.kind?`<span class="pill">${esc(r.kind)}</span>`:''}${esc(r.area||'')}${r.visited?' · '+r.visited.slice(2).replace(/-/g,'.'):''}</div>
+    ${(r.jia_star||r.jongsu_star)?`<div class="mt" style="color:var(--star)">${r.jia_star?'지아 '+stars(r.jia_star):''} ${r.jongsu_star?' 종수 '+stars(r.jongsu_star):''}</div>`:''}</div></div>`;
+}
+
+// ── 보기 ──
+function openModal(h){$('sheet').innerHTML=h;$('modal').classList.add('on');$('sheet').scrollTop=0}
+function closeModal(){$('modal').classList.remove('on');S.draft=null}
+function openView(id){
+  const r=S.rows.find(x=>x.id===id);
+  openModal(`<div class="top"><h2 style="flex:1;font-size:22px">${kindIcon(r.kind)} ${esc(r.name)}</h2><button class="btn small" onclick="openEdit('${r.id}')">고치기</button></div>
+    ${(r.photos||[]).length?`<div class="photos">${r.photos.map(p=>S.urls[p]?`<img src="${S.urls[p]}" onclick="zoom('${S.urls[p]}')" alt="">`:'').join('')}</div>`:''}
+    <div class="kv">
+      ${r.area?`<span>동네</span><span>${esc(r.area)}</span>`:''}
+      ${r.visited?`<span>다녀온 날</span><span>${r.visited}</span>`:''}
+      ${r.menu?`<span>먹은 메뉴</span><span>${esc(r.menu)}</span>`:''}
+      ${r.jia_star?`<span>지아 별점</span><span style="color:var(--star)">${stars(r.jia_star)}</span>`:''}
+      ${r.jongsu_star?`<span>종수 별점</span><span style="color:var(--star)">${stars(r.jongsu_star)}</span>`:''}
+      ${r.cost?`<span>쓴 돈</span><span>${won(r.cost)}</span>`:''}
+      <span>또 갈래?</span><span>${r.again?'💛 또 가고 싶어요':'—'}</span>
+      ${r.memo?`<span>메모</span><span style="white-space:pre-wrap">${esc(r.memo)}</span>`:''}
+    </div>
+    <button class="btn" style="width:100%;margin-top:16px" onclick="closeModal()">닫기</button>`);
+}
+function zoom(u){$('viewerImg').src=u;$('viewer').classList.add('on')}
+
+// ── 기록하기 / 고치기 ──
+function openEdit(id){
+  const r=id?S.rows.find(x=>x.id===id):{name:'',kind:'카페',area:'',visited:today(),menu:'',jia_star:0,jongsu_star:0,again:false,cost:null,memo:'',photos:[]};
+  S.draft={...r,photos:[...(r.photos||[])],newFiles:[],removed:[]};
+  const ar=areas();
+  openModal(`<h2 style="font-size:22px">${id?'고치기':'💕 기록하기'}</h2>
+    <label class="field">가게·장소 이름<input id="eName" value="${esc(r.name)}" placeholder="예: 딥플로우 커피"></label>
+    <div class="field">종류<div class="seg" id="eKind">${KINDS.map(([k,i])=>`<button type="button" class="${r.kind===k?'on':''}" onclick="pickKind(this,'${k}')">${i} ${k}</button>`).join('')}</div></div>
+    <div class="g2">
+      <label class="field">동네<input id="eArea" list="areaList" value="${esc(r.area||'')}" placeholder="예: 부산대"></label>
+      <label class="field">다녀온 날<input id="eDate" type="date" value="${r.visited||''}"></label>
+    </div>
+    <datalist id="areaList">${ar.map(a=>`<option>${esc(a)}</option>`).join('')}</datalist>
+    <div class="field">사진 <span style="font-size:12px">고르기만 하면 알아서 줄여서 올려요</span>
+      <div class="thumbs" id="eThumbs"></div>
+      <div class="addph" onclick="$('pick').click()">📷 사진 고르기 (여러 장 OK)</div>
+      <label style="display:flex;gap:6px;align-items:center;margin-top:8px;color:var(--sub)"><input type="checkbox" id="eCollage"> 5장 넘으면 4장씩 콜라주로 합치기</label>
+    </div>
+    <label class="field">먹은 메뉴<input id="eMenu" value="${esc(r.menu||'')}" placeholder="예: 아인슈페너, 바스크치즈케이크"></label>
+    <div class="g2">
+      <div class="field">지아 ⭐<div class="stars" data-k="jia_star">${starBtns(r.jia_star,'jia_star')}</div></div>
+      <div class="field">종수 ⭐<div class="stars" data-k="jongsu_star">${starBtns(r.jongsu_star,'jongsu_star')}</div></div>
+    </div>
+    <div class="g2">
+      <label class="field">쓴 돈<input id="eCost" inputmode="numeric" value="${r.cost?Number(r.cost).toLocaleString('ko-KR'):''}" placeholder="예: 12,000"></label>
+      <label class="field" style="justify-content:flex-end"><span style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink);padding:9px 0"><input type="checkbox" id="eAgain" ${r.again?'checked':''} style="width:20px;height:20px"> 💛 또 갈래</span></label>
+    </div>
+    <label class="field">한 줄 메모<textarea id="eMemo" rows="2" placeholder="예: 창가 자리 좋음, 주차 어려움">${esc(r.memo||'')}</textarea></label>
+    <div style="display:flex;gap:8px;margin-top:16px">${id?`<button class="btn" onclick="delPlace('${id}')">삭제</button>`:''}<button class="btn" style="flex:1" onclick="closeModal()">취소</button><button class="btn primary" style="flex:2" id="eSave" onclick="savePlace()">저장</button></div>`);
+  drawThumbs();
+  if(!id)setTimeout(()=>$('eName')?.focus(),80);
+}
+function starBtns(n,k){return [1,2,3,4,5].map(i=>`<button type="button" class="${i<=(n||0)?'on':''}" onclick="setStar('${k}',${i})">★</button>`).join('')}
+function setStar(k,i){S.draft[k]=S.draft[k]===i?0:i;document.querySelector(`.stars[data-k="${k}"]`).innerHTML=starBtns(S.draft[k],k)}
+function pickKind(el,k){S.draft.kind=k;[...el.parentNode.children].forEach(b=>b.classList.toggle('on',b===el))}
+function drawThumbs(){
+  const d=S.draft;
+  const old=d.photos.map((p,i)=>`<div><img src="${S.urls[p]||''}" alt=""><button onclick="rmOld(${i})">✕</button></div>`);
+  const nw=d.newFiles.map((f,i)=>`<div><img src="${f.url}" alt=""><button onclick="rmNew(${i})">✕</button></div>`);
+  $('eThumbs').innerHTML=old.concat(nw).join('');
+}
+function rmOld(i){S.draft.removed.push(S.draft.photos[i]);S.draft.photos.splice(i,1);drawThumbs()}
+function rmNew(i){URL.revokeObjectURL(S.draft.newFiles[i].url);S.draft.newFiles.splice(i,1);drawThumbs()}
+
+// 사진 줄이기: 긴 쪽 1600px, JPEG 80% → 보통 300~600KB
+async function loadImg(file){
+  try{ return await createImageBitmap(file,{imageOrientation:'from-image'}); }
+  catch(e){ return await new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=rej;im.src=URL.createObjectURL(file)}); }
+}
+function toBlob(canvas,q){return new Promise(r=>canvas.toBlob(r,'image/jpeg',q))}
+async function shrink(file,max=1600){
+  const img=await loadImg(file);
+  const w=img.width,h=img.height,s=Math.min(1,max/Math.max(w,h));
+  const c=document.createElement('canvas');c.width=Math.round(w*s);c.height=Math.round(h*s);
+  c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+  let b=await toBlob(c,.8); if(b.size>1.2e6) b=await toBlob(c,.65);
+  return b;
+}
+async function collage(blobs){
+  const N=blobs.length, cols=N<=1?1:2, rows=Math.ceil(N/cols), cell=800, gap=8;
+  const c=document.createElement('canvas');c.width=cols*cell+(cols+1)*gap;c.height=rows*cell+(rows+1)*gap;
+  const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);
+  for(let i=0;i<N;i++){
+    const img=await loadImg(blobs[i]); const x=gap+(i%cols)*(cell+gap), y=gap+Math.floor(i/cols)*(cell+gap);
+    const s=Math.max(cell/img.width,cell/img.height), sw=cell/s, sh=cell/s;
+    g.drawImage(img,(img.width-sw)/2,(img.height-sh)/2,sw,sh,x,y,cell,cell);
+  }
+  return await toBlob(c,.82);
+}
+async function addPhotos(fileList){
+  const files=[...(fileList||[])];   // 입력칸을 비우기 전에 복사해 두기
+  if(!files.length||!S.draft)return;
+  toast(`사진 ${files.length}장 줄이는 중…`);
+  for(const f of files){
+    try{const b=await shrink(f);S.draft.newFiles.push({blob:b,url:URL.createObjectURL(b)})}
+    catch(e){console.error(e);toast('이 사진은 못 읽었어요: '+f.name)}
+  }
+  drawThumbs(); toast(`${files.length}장 준비됐어요`);
+}
+async function savePlace(){
+  const d=S.draft; const name=$('eName').value.trim();
+  if(!name){toast('가게 이름을 넣어주세요');return}
+  const btn=$('eSave');btn.disabled=true;btn.textContent='저장 중…';
+  try{
+    let blobs=d.newFiles.map(f=>f.blob);
+    if($('eCollage').checked && blobs.length>4){
+      const out=[]; for(let i=0;i<blobs.length;i+=4) out.push(await collage(blobs.slice(i,i+4))); blobs=out;
+    }
+    const uploaded=[];
+    for(const b of blobs){
+      const path=`${new Date().getFullYear()}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.jpg`;
+      const {error}=await sb.storage.from(BUCKET).upload(path,b,{contentType:'image/jpeg'});
+      if(fail(error,'사진 올리기'))throw error;
+      uploaded.push(path);
+    }
+    const row={name,kind:d.kind,area:$('eArea').value.trim()||null,visited:$('eDate').value||null,menu:$('eMenu').value.trim()||null,
+      jia_star:d.jia_star||null,jongsu_star:d.jongsu_star||null,again:$('eAgain').checked,
+      cost:Number($('eCost').value.replace(/[^\d]/g,''))||null,memo:$('eMemo').value.trim()||null,photos:[...d.photos,...uploaded],updated_by:S.me};
+    const q=d.id?sb.from('date_places').update(row).eq('id',d.id):sb.from('date_places').insert(row);
+    const {error}=await q; if(fail(error))throw error;
+    if(d.removed.length) await sb.storage.from(BUCKET).remove(d.removed);
+    d.newFiles.forEach(f=>URL.revokeObjectURL(f.url));
+    closeModal(); await load(); toast('저장했어요 💕');
+  }catch(e){ btn.disabled=false;btn.textContent='저장'; }
+}
+async function delPlace(id){
+  const r=S.rows.find(x=>x.id===id);
+  if(!confirm(`"${r.name}" 기록을 지울까요? 사진도 같이 지워져요.`))return;
+  const {error}=await sb.from('date_places').delete().eq('id',id); if(fail(error,'삭제'))return;
+  if((r.photos||[]).length) await sb.storage.from(BUCKET).remove(r.photos);
+  closeModal(); await load(); toast('지웠어요');
+}
+
+sb.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT'){$('app').hidden=true;$('login').hidden=false}});
+boot();
+</script>
+</body>
+</html>
